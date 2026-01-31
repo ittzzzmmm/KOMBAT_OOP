@@ -1,27 +1,49 @@
 import { useEffect, useState } from "react";
+import { Client } from "@stomp/stompjs";
+
+let client: Client | null = null;
 
 function App() {
     const [count, setCount] = useState<number>(0);
 
-    // โหลดค่าครั้งแรกจาก backend
     useEffect(() => {
-        fetch("http://localhost:8080/api/count")
-            .then(res => res.json())
-            .then(data => {setCount(data);});
-    }, []);
+        client = new Client({
+            brokerURL: "ws://localhost:8080/ws",
+            reconnectDelay: 5000,
+            onConnect: () => {
+                console.log("WS connected");
+                client?.publish({
+                    destination: "/app/current",
+                    body: ""
+                });
+                client?.subscribe("/topic/count", (message) => {
+                    setCount(JSON.parse(message.body));
+                });
 
-    const handleClick = async () => {
-        const res = await fetch("http://localhost:8080/api/click", {
-            method: "POST",
+
+            },
+            onStompError: (frame) => {
+                console.error("Broker error", frame);
+            },
         });
 
-        const newCount = await res.json();
-        setCount(newCount);
+        client.activate();
+
+        return () => {
+            client?.deactivate();
+        };
+    }, []);
+
+    const handleClick = () => {
+        client?.publish({
+            destination: "/app/click",
+            body: "",
+        });
     };
 
     return (
         <div style={{ padding: "40px" }}>
-            <h1>Click Counter (React + Spring Boot)</h1>
+            <h1>Click Counter (WebSocket)</h1>
             <button onClick={handleClick}>Click me</button>
             <p>Count from server: {count}</p>
         </div>
