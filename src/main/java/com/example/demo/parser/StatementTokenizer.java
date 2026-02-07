@@ -86,4 +86,14 @@ public class StatementTokenizer implements Tokenizer{
     private boolean isParentheses(char c) {
         return "{}()".indexOf(c) >= 0;
     }
+
+    public boolean peek(String s){
+        if(!hasNextToken())return false;
+        return peek().equals(s);
+    }
+
+    public void consume(String s) throws SyntaxError{
+        if(peek(s)) consume();
+        else throw new SyntaxError("'"+ s +"' Expected");
+    }
 }

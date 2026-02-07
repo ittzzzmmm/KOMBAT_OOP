@@ -6,7 +6,7 @@ public record AssignmentStatement(String variable, Expression expression) implem
 
     @Override
     public void eval(Context context){
-        int val = expression.eval(context.variables());
+        int val = expression.eval(context);
         context.variables().put(variable,val);
     }
 }

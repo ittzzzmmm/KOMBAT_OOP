@@ -1,5 +1,7 @@
 package com.example.demo.ast;
 
+import com.example.demo.game.Context;
+
 import java.util.Map;
 
 import static java.lang.Math.pow;
@@ -7,9 +9,9 @@ import static java.lang.Math.pow;
 public record BinaryArithExpression(Expression left, String operator, Expression right) implements Expression
 {
     @Override
-    public int eval(Map<String,Integer> binding){
-        int lv = left.eval(binding);
-        int rv = right.eval(binding);
+    public int eval(Context context){
+        int lv = left.eval(context);
+        int rv = right.eval(context);
         if (operator.equals("+")) return lv + rv;
         if (operator.equals("-")) return lv - rv;
         if (operator.equals("*")) return lv * rv;

@@ -6,7 +6,7 @@ public record IfStatement(Expression condition, Statement thenStatement, Stateme
 
     @Override
     public void eval(Context context){
-        if(condition.eval(context.variables()) > 0){ // greater than 0
+        if(condition.eval(context) > 0){ // greater than 0
             thenStatement.eval(context);
         }else{ // less than equal 0
             elseStatement.eval(context);
