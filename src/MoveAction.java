@@ -1,0 +1,1 @@
+public record MoveAction(minionId MinId, direction dir) implements Action { }

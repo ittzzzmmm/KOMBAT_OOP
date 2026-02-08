@@ -1,0 +1,1 @@
+public record ShootAction(minionId MinId, direction dir, long costfor) implements Action { }

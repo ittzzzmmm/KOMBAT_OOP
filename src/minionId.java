@@ -1,0 +1,1 @@
+public record minionId(long v) { }
