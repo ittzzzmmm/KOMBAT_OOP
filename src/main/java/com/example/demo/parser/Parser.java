@@ -201,9 +201,12 @@ public class Parser {
             tk.consume();
             return new AllyExpression();
         }else if(token.equals("opponent")){
-
+            tk.consume();
+            return new OpponentExpression();
         }else{
-
+            tk.consume();
+            Direction dir = parseDirection();
+            return new NearbyExpression(dir);
         }
     }
 
