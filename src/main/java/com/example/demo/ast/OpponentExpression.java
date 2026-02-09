@@ -1,4 +1,10 @@
 package com.example.demo.ast;
 
-public class OpponentExpression {
+import com.example.demo.game.Context;
+
+public class OpponentExpression implements Expression {
+    @Override
+    public int eval(Context context) {
+        return context.scan("OPPONENT",null);
+    }
 }
