@@ -10,7 +10,11 @@ public record Context(GameState gameState,Minion minion,Map<String,Integer> vari
             this(gameState,minion,new HashMap<>());
     }
 
-    public int scan(String type, Direction direction){
+    public int scan(String type){
+        return 0;
+    }
+
+    public int scan(String type, Direction dir){
         return 0;
     }
 }
