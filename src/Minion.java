@@ -7,7 +7,7 @@ public final class Minion {
     private int hp;
     private final int defenseFactor;
     private HexCoord pos;
-    private final Map<String, Integer> localVars = new HashMap<>();
+    private final Map<String, Long> localVars = new HashMap<>();
 
     public Minion(minionId id, PlayerId owner, int hp, int defenseFactor, HexCoord pos) {
         this.id = id;
@@ -28,5 +28,5 @@ public final class Minion {
     public HexCoord pos() { return pos; }
     public void setPos(HexCoord pos) { this.pos = pos; }
 
-    public Map<String, Integer> localVars() { return localVars; }
+    public Map<String, Long> localVars() { return localVars; }
 }

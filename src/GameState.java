@@ -8,32 +8,23 @@ public final class GameState {
     private final Map<PlayerId, Player> players;
     private final Map<minionId, Minion> minions;
 
-    // constraints from config
+    //from config
     private final long maxBudget;
     private final long maxSpawns;
 
-    // ---------- constructors ----------
+    //constructors
 
-    public GameState(GameMap map,
-                     Map<PlayerId, Player> players,
-                     Map<minionId, Minion> minions,
-                     long maxBudget,
-                     long maxSpawns) {
-        this.map = Objects.requireNonNull(map);
-        this.players = Objects.requireNonNull(players);
-        this.minions = Objects.requireNonNull(minions);
-        this.maxBudget = maxBudget;
-        this.maxSpawns = maxSpawns;
-    }
-
-    // constructor chain รับ GameConfig
     public GameState(GameMap map,
                      Map<PlayerId, Player> players,
                      Map<minionId, Minion> minions,
                      GameConfig cfg) {
-        this(map, players, minions, cfg.maxBudget(), cfg.maxSpawns());
+        Objects.requireNonNull(cfg, "GameConfig cannot be null");
+        this.map = Objects.requireNonNull(map);
+        this.players = Objects.requireNonNull(players);
+        this.minions = Objects.requireNonNull(minions);
+        this.maxBudget = cfg.maxBudget();
+        this.maxSpawns = cfg.maxSpawns();
     }
-
 
     public GameMap map() { return map; }
     public Map<PlayerId, Player> players() { return players; }
@@ -50,8 +41,7 @@ public final class GameState {
     }
 
     // rule checks
-
-    /** ซื้อ hex ได้ไหม */
+    //ซื้อ hex ได้มั้ย
     public boolean canBuyHex(PlayerId p, HexCoord at) {
         if (!map.inBounds(at)) return false;
 
@@ -71,7 +61,7 @@ public final class GameState {
         return false;
     }
 
-    /** วาง minion ได้ไหม */
+    //วาง minion ได้ไหม
     public boolean canSpawnMinion(PlayerId p, HexCoord at) {
         if (!map.inBounds(at)) return false;
         HexTile t = map.get(at);
@@ -90,8 +80,6 @@ public final class GameState {
     }
 
     //minion factory
-
-    /** จุดเดียวที่สร้าง + ใส่ minion ลงกระดาน */
     public minionId spawnMinion(PlayerId owner, HexCoord at, int hp, int defense) {
         if (!map.inBounds(at)) throw new IllegalArgumentException("spawn out of bounds");
         if (map.isOccupied(at)) throw new IllegalStateException("spawn on occupied tile");
@@ -112,8 +100,7 @@ public final class GameState {
         return max + 1;
     }
 
-    // strategy apply pipeline
-
+    // strategy apply
     public ApplyResult tryApply(PlayerId actor, Action action) {
 
         if (action instanceof DoneAction) return ApplyResult.TERMINATE;

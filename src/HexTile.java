@@ -5,7 +5,7 @@ public final class HexTile {
     private boolean spawnableP1;
     private boolean spawnableP2;
 
-    // owner ของ hex (null = ยังไม่ถูกซื้อ)
+    // owner ของ hex (ถ้าเป็น null คือยังไม่ถูกซื้อ)
     private PlayerId owner;
 
     public HexTile(HexCoord coord) {

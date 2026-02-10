@@ -20,12 +20,7 @@ public final class GameEngine {
         startPlayerTurn(PlayerId.P1);
     }
 
-    public boolean isGameOver() { return gameOver; }
-    public TurnPhase phase() { return phase; }
-    public GameConfig config() { return cfg; }
-
     // purchase phase
-
     public boolean buyHex(HexCoord at) {
         requirePhaseBuyHex();
         PlayerId p = currentPlayer();
@@ -75,7 +70,6 @@ public final class GameEngine {
     }
 
     // strategy phase
-
     public void runStrategyPhase() {
         if (phase != TurnPhase.RUN_STRATEGY)
             throw new IllegalStateException("Not in strategy phase");
@@ -85,7 +79,7 @@ public final class GameEngine {
                 Minion self = state.minion(id);
                 if (self == null) continue;
 
-                GameContext ctx = new GameContext(state, self, cfg.maxTicks());
+                GameContext ctx = new GameContext(state, self);
                 runner.runForMinion(ctx);
 
                 spawnOrder.removeIf(mid -> state.minion(mid) == null);
@@ -118,9 +112,13 @@ public final class GameEngine {
         if (pl.budget() > cfg.maxBudget()) {
             pl.setBudget(cfg.maxBudget());
         }
-    }
 
-    // phase helpers
+        if(PlayerId.P1.equals(p)) {
+            phase = TurnPhase.P1_BUY_HEX;
+        }else {
+            phase = TurnPhase.P2_BUY_HEX;
+        }
+    }
 
     private PlayerId currentPlayer() {
         return switch (phase) {
@@ -167,10 +165,8 @@ public final class GameEngine {
         for (Minion m : state.minions().values()) {
             if (m.owner() == PlayerId.P1) hasP1 = true;
             else if (m.owner() == PlayerId.P2) hasP2 = true;
-            // เจอครบแล้ว ไม่ต้องวนต่อ
             if (hasP1 && hasP2) break;
         }
-        // ถ้าฝ่ายใดฝ่ายหนึ่งไม่มีเลย -> เกมจบ
         return !(hasP1 && hasP2);
     }
 }

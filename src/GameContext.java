@@ -1,96 +1,85 @@
-import java.util.AbstractMap;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
 
-public final class GameContext implements Context {
-
-    private static final Set<String> READ_ONLY_SPECIALS = Set.of(
-            "row", "col", "Budget", "MaxBudget", "SpawnsLeft", "random"
-    );
+public final class GameContext {
 
     private final GameState state;
     private final Minion self;
-    private final Map<String, Integer> backing = new HashMap<>();
-
-    private boolean terminated = false;
-
-    private final int maxTicks;
-    private int ticks = 0;
 
     public GameContext(GameState state, Minion self) {
-        this(state, self, 50_000);
+        this.state = Objects.requireNonNull(state);
+        this.self = Objects.requireNonNull(self);
     }
 
-    public GameContext(GameState state, Minion self, int maxTicks) {
-        this.state = state;
-        this.self = self;
-        this.maxTicks = Math.max(1, maxTicks);
+    public GameState state() { return state; }
+    public Minion self() { return self; }
+
+    public PlayerId owner() { return self.owner(); }
+
+    public long getVar(String name) {
+        if (name == null || name.isBlank()) return 0L;
+
+        Long special = readSpecial(name);
+        if (special != null) return special;
+
+        if (isGlobalName(name)) {
+            return player().globalVars().getOrDefault(name, 0L);
+        } else {
+            return localVars().getOrDefault(name, 0L);
+        }
     }
 
-    @Override
-    public GameState gameState() {
-        return state;
+    public void setVar(String name, long value) {
+        if (name == null || name.isBlank()) return;
+        if (isReadOnly(name)) return;
+
+        if (isGlobalName(name)) {
+            player().globalVars().put(name, value);
+        } else {
+            localVars().put(name, value);
+        }
     }
 
-    @Override
-    public Minion minion() {
-        return self;
-    }
-
-    @Override
-    public Map<String, Integer> variables() {
-        // Custom view so AST can do context.variables().get/put
-        return new AbstractMap<>() {
-            @Override
-            public Integer get(Object keyObj) {
-                if (!(keyObj instanceof String key)) return null;
-
-                // special vars (computed)
-                return switch (key) {
-                    case "row" -> self.pos().row;
-                    case "col" -> self.pos().col;
-                    case "Budget" -> (int) Math.floor(state.player(self.owner()).budget());
-                    case "MaxBudget" -> (int) state.maxBudget();
-                    case "SpawnsLeft" -> (int) state.spawnsLeft(self.owner());
-                    case "random" -> state.player(self.owner()).random0to999();
-                    default -> backing.get(key);
-                };
-            }
-
-            @Override
-            public Integer put(String key, Integer value) {
-                if (key == null) return null;
-                if (READ_ONLY_SPECIALS.contains(key)) {
-                    throw new RuntimeException("Cannot assign to read only variable: " + key);
-                }
-                if (value == null) return backing.remove(key);
-                return backing.put(key, value);
-            }
-
-            @Override
-            public Set<Entry<String, Integer>> entrySet() {
-                // Executor/tests usually don't need iteration. Keep it simple.
-                return backing.entrySet();
-            }
+    private boolean isReadOnly(String name) {
+        return switch (name) {
+            case "row", "col",
+                 "budget", "maxBudget", "spawnsLeft",
+                 "opponent", "ally",
+                 "random",
+                 "nearby" -> true;
+            default -> false;
         };
     }
 
-    @Override
-    public void terminate() {
-        this.terminated = true;
+    private Long readSpecial(String name) {
+        return switch (name) {
+            case "row" -> (long) self.pos().row;
+            case "col" -> (long) self.pos().col;
+            case "budget" -> (long) Math.floor(player().budget());
+            case "maxBudget" -> state.maxBudget();
+            case "spawnsLeft" -> state.spawnsLeft(owner());
+            case "opponent" -> (long) state.map().encodeClosestOpponent(state, self.id());
+            case "ally" -> (long) state.map().encodeClosestAlly(state, self.id());
+            case "random" -> (long) player().random0to999();
+            case "nearby" -> 0L;
+
+            default -> null;
+        };
     }
 
-    @Override
-    public boolean isTerminated() {
-        return terminated;
+    public long nearby(direction dir) {
+        return state.map().encodeNearby(state, self.id(), dir);
     }
 
-    @Override
-    public void tick() {
-        ticks++;
-        if (ticks > maxTicks) {
-            throw new RuntimeException("Strategy exceeded max steps (" + maxTicks + ") - possible infinite loop.");
-        }
+    private Player player() {
+        return state.player(owner());
+    }
+
+    private Map<String, Long> localVars() {
+        return self.localVars();
+    }
+
+    private static boolean isGlobalName(String name) {
+        return Character.isUpperCase(name.charAt(0));
     }
 }

@@ -7,7 +7,6 @@ public final class HexCoord {
         this.row = row;
     }
 
-    /** Neighbor coordinate in the given strategy direction. */
     public HexCoord neighbor(direction d) {
         boolean oddCol = (col & 1) == 1;
         return switch (d) {

@@ -57,7 +57,6 @@ public final class GameMap {
         if (id.equals(t.occupant())) t.clearOccupant();
     }
 
-    // encoding
     public int encodeClosestOpponent(GameState s, minionId me) {
         Minion self = s.minion(me);
         if (self == null) return 0;
@@ -101,11 +100,9 @@ public final class GameMap {
         return 0;
     }
 
-    /**
-     * Encode "nearby" : 100*x + 10*y + z
-     * x = digits(hp), y = digits(defense), z = dist*10 + dirCode.
-     * Ally -> negative, Opponent -> positive, Nothing -> 0.
-     */
+//     Encode nearby : 100*x + 10*y + z
+//     x = digits(hp), y = digits(defense), z = dist*10 + dirCode.
+//     Ally (negative), Opponent (positive), Nothing (0).
     public int encodeNearby(GameState s, minionId me, direction dir) {
         Minion self = s.minion(me);
         if (self == null) return 0;
@@ -132,7 +129,7 @@ public final class GameMap {
         return 0;
     }
 
-    // mapping 1..6 (เลือกแบบง่ายให้คงที่)
+    // mapping 1-6
     private static int dirCode(direction d) {
         return switch (d) {
             case UP -> 1;

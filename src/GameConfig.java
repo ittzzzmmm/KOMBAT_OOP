@@ -7,8 +7,7 @@ public record GameConfig(
         long maxBudget,
         double interestPct,
         int maxTurns,
-        int maxSpawns,
-        int maxTicks // (ไม่มีในไฟล์ sample) ใช้สำหรับจำกัดการรัน strategy
+        int maxSpawns
 ) {
     public GameConfig {
         if (spawnCost < 0) throw new IllegalArgumentException("spawn_cost must be >= 0");
@@ -20,7 +19,6 @@ public record GameConfig(
         if (interestPct < 0) throw new IllegalArgumentException("interest_pct must be >= 0");
         if (maxTurns <= 0) throw new IllegalArgumentException("max_turns must be > 0");
         if (maxSpawns < 0) throw new IllegalArgumentException("max_spawns must be >= 0");
-        if (maxTicks <= 0) throw new IllegalArgumentException("maxTicks must be > 0");
 
     }
 }

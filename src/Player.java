@@ -9,15 +9,10 @@ public final class Player {
     private final Map<String, Long> globalVars = new HashMap<>();
     private final Random rng;
 
-    /**
-     * ✅ Recommended constructor:
-     * ใช้ PlayerId เพื่อ seed RNG แบบ deterministic (ช่วยให้เทส/ดีบั๊กนิ่ง)
-     * - P1 -> seed 1
-     * - P2 -> seed 2
-     */
     public Player(double budget, PlayerId id) {
         this(budget, seedFor(id));
     }
+
     public Player(double budget, long rngSeed) {
         this.budget = budget;
         this.rng = new Random(rngSeed);
@@ -36,6 +31,5 @@ public final class Player {
 
     public Map<String, Long> globalVars() { return globalVars; }
 
-    /** RNG สำหรับ strategy/query: 0..999 */
     public int random0to999() { return rng.nextInt(1000); }
 }
