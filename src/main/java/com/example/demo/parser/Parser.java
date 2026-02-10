@@ -1,8 +1,8 @@
 package com.example.demo.parser;
 
+import ch.qos.logback.core.encoder.EchoEncoder;
 import com.example.demo.ast.*;
 
-import javax.swing.plaf.nimbus.State;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -96,19 +96,13 @@ public class Parser {
         if (tk.peek("done")) {
             tk.consume();
             return new DoneCommand();
-        }
-
-        if (tk.peek("move")) {
+        }else if (tk.peek("move")) {
             tk.consume();
             return parseMove();
-        }
-
-        if (tk.peek("shoot")) {
+        }else{
             tk.consume();
             return parseAttack();
         }
-
-        throw new SyntaxError("Unknown action command");
     }
     private Statement parseMove(){
         Direction direction = parseDirection();
@@ -135,7 +129,7 @@ public class Parser {
         validateIdentifier(varName);
         tk.consume("=");
         Expression expression = parseExpression();
-        return new AssignmentStatement(varName,expression);
+        return new AssignmentCommand(varName,expression);
     }
 
     private Expression parseExpression() throws SyntaxError{
@@ -185,8 +179,10 @@ public class Parser {
             tk.consume();
             return new IntLit(Integer.parseInt(token));
         }else if(token.equals("(")){
-            tk.consume();
-            return parseExpression();
+            tk.consume("(");
+            Expression expression = parseExpression();
+            tk.consume(")");
+            return expression;
         } else if(token.equals("ally")||token.equals("opponent")||token.equals("nearby")){
             return parseInfo();
         }else{
