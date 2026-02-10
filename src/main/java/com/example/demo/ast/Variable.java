@@ -7,7 +7,7 @@ import java.util.Map;
 public record Variable(String varName) implements Expression {
     @Override
     public int eval(Context context){
-        Integer value = context.variables().get(varName);
+        Integer value = context.getVariable(varName);
         if(value==null){
             throw new RuntimeException("Undefined variable : "+varName);
         }
